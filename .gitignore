@@ -1,0 +1,12 @@
+# Decompiled game code and game/plugin DLLs must not be published
+decompiled/
+*.dll
+*.pdb
+bin/
+releases/
+tools/
+build.log
+decompiled_kk/
+build_kk.log
+publish/
+_to_delete/
