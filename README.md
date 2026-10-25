@@ -65,7 +65,8 @@ There are two builds from the same source: `KKS_StudioCharaFilter.dll` for Koika
 
 - **Random filters** (next to *Reset all*) clears the filters and sets a random few: ranges on 2-5 random sliders and
   sometimes a hair or eye color, picked from your own cards. Press again for another mix.
-- **Random** on a slider gives it a random range; **+ random range** adds another one.
+- **Random** on a slider gives it a random range; **+ random range** adds another one that doesn't overlap the ranges it
+  already has (it's picked in a gap between them, so it always adds cards that weren't shown before).
 
 Ranges always come from the cards (a random card's value, widened to hold a good share of what still matches), so a random
 filter never lands on an empty stretch. How narrow it gets follows the size of the collection: about 3 x the square root of

@@ -20,7 +20,7 @@ namespace StudioCharaFilter
     {
         public const string GUID = "WolfLikesKKS.StudioCharaFilter";
         public const string PluginName = "Studio Chara Filter";
-        public const string Version = "1.4.0";
+        public const string Version = "1.4.1";
 
         internal static ManualLogSource Log;
         internal static StudioCharaFilterPlugin Instance;

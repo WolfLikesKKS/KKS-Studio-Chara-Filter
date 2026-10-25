@@ -449,7 +449,7 @@ namespace StudioCharaFilter
             GUILayout.BeginHorizontal();
             if (GUILayout.Button(new GUIContent("+ add range", "Add another range for this value. Cards matching any of the ranges are shown."), _smallButton, GUILayout.Width(90)))
                 Queue(delegate { p.Ranges.Add(new ValueRange(p.SpanMin, p.SpanMax)); });
-            if (GUILayout.Button(new GUIContent("+ random range", "Add another, random range for this value (cards in either range are shown)."),
+            if (GUILayout.Button(new GUIContent("+ random range", "Add another random range for this value that doesn't overlap the ones it already has (cards in any of them are shown)."),
                 _smallButton, GUILayout.Width(110)))
                 Queue(delegate { RandomFilter.RandomRange(_filter, p, _scopeCards, true); _markDirty(0f); });
             GUILayout.FlexibleSpace();

@@ -33,7 +33,7 @@ namespace StudioCharaFilter
             if (add) p.Ranges.AddRange(keep);
             int target = Target(scope.Count);
             float q = (float)(0.25 + Rng.NextDouble() * 0.35);
-            ValueRange r = Pick(p, others, q, target);
+            ValueRange r = add ? PickBeside(p, others, q, target, keep) : Pick(p, others, q, target);
             if (r == null)
             {
                 p.Ranges.Clear();
@@ -90,8 +90,68 @@ namespace StudioCharaFilter
             return current.Count;
         }
 
+        // "+ random range": a new range that doesn't overlap the ones the slider already has - picked inside one of the
+        // gaps between them (a gap with more cards is likelier), so it always adds cards that weren't shown before.
+        private static ValueRange PickBeside(PropertyFilter p, List<CardInfo> cards, float q, int target, List<ValueRange> existing)
+        {
+            List<ValueRange> taken = new List<ValueRange>();
+            foreach (ValueRange e in existing) if (p.IsRangeActive(e)) taken.Add(e);
+            if (taken.Count == 0) return Pick(p, cards, q, target);
+            taken.Sort(delegate(ValueRange a, ValueRange b) { return a.Min.CompareTo(b.Min); });
+            // Gaps: from the slider's start to the first range, between ranges, after the last one (1 unit clear of each).
+            List<float> gapLo = new List<float>(), gapHi = new List<float>();
+            float from = p.SpanMin;
+            bool openLo = true;
+            foreach (ValueRange e in taken)
+            {
+                bool startsAtEnd = e.Min <= p.SpanMin + 0.01f;
+                float to = e.Min - 1f;
+                if (!startsAtEnd && to >= from) { gapLo.Add(openLo ? float.MinValue : from); gapHi.Add(to); }
+                from = Math.Max(from, e.Max + 1f);
+                openLo = false;
+                if (e.Max >= p.SpanMax - 0.01f) { from = float.MaxValue; break; }
+            }
+            if (from != float.MaxValue) { gapLo.Add(from); gapHi.Add(float.MaxValue); }
+            // Cards per gap (rounded the way the filter compares).
+            List<List<CardInfo>> inGap = new List<List<CardInfo>>();
+            int total = 0;
+            for (int g = 0; g < gapLo.Count; g++)
+            {
+                List<CardInfo> l = new List<CardInfo>();
+                foreach (CardInfo ci in cards)
+                {
+                    float? v = p.GetValue(ci);
+                    if (!v.HasValue || float.IsNaN(v.Value)) continue;
+                    if (v.Value >= gapLo[g] - 0.5f && v.Value < gapHi[g] + 0.5f) l.Add(ci);
+                }
+                inGap.Add(l);
+                if (l.Count >= 4) total += l.Count;
+            }
+            if (total == 0) return null;
+            int pick = Rng.Next(total);
+            for (int g = 0; g < inGap.Count; g++)
+            {
+                if (inGap[g].Count < 4) continue;
+                if (pick >= inGap[g].Count) { pick -= inGap[g].Count; continue; }
+                ValueRange r = Pick(p, inGap[g], q, Math.Min(target, inGap[g].Count), true);
+                if (r == null) return null;
+                // Keep it inside the gap (an open end only where the gap reaches the slider's end).
+                float lo = Math.Max(r.Min, gapLo[g] == float.MinValue ? p.SpanMin : gapLo[g]);
+                float hi = Math.Min(r.Max, gapHi[g] == float.MaxValue ? p.SpanMax : gapHi[g]);
+                if (hi < lo) return null;
+                return new ValueRange(lo, hi);
+            }
+            return null;
+        }
+
         // A range around a random card's value holding about q of `cards` (at least `target` of them when possible).
         private static ValueRange Pick(PropertyFilter p, List<CardInfo> cards, float q, int target)
+        {
+            return Pick(p, cards, q, target, false);
+        }
+
+        // allowAll: the range may hold all of `cards` (inside a gap that is fine - it is still limited to the gap).
+        private static ValueRange Pick(PropertyFilter p, List<CardInfo> cards, float q, int target, bool allowAll)
         {
             List<float> values = new List<float>(cards.Count);
             foreach (CardInfo ci in cards)
@@ -110,7 +170,7 @@ namespace StudioCharaFilter
             float lo = (float)Math.Floor(values[start]), hi = (float)Math.Ceiling(values[end]);
             if (start == 0) lo = p.SpanMin;           // reaching the end of the slider: "and beyond"
             if (end == n - 1) hi = p.SpanMax;
-            if (lo <= p.SpanMin + 0.01f && hi >= p.SpanMax - 0.01f) return null;   // the whole slider: no filter at all
+            if (!allowAll && lo <= p.SpanMin + 0.01f && hi >= p.SpanMax - 0.01f) return null;   // the whole slider: no filter at all
             return new ValueRange(lo, hi);
         }
     }
