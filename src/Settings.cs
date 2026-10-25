@@ -21,6 +21,7 @@ namespace StudioCharaFilter
         public static ConfigEntry<KeyboardShortcut> ToggleKey;
         public static ConfigEntry<float> WindowScale;
         public static ConfigEntry<bool> ShowHistograms;
+        public static ConfigEntry<bool> ShowRandom;
         public static ConfigEntry<int> HistogramHeight;
         public static ConfigEntry<bool> ShowModIds;
         public static ConfigEntry<float> OutlierTrim;
@@ -55,6 +56,9 @@ namespace StudioCharaFilter
                 new ConfigDescription("Size of the filter window and its text. Try 1.25-1.5 on 1440p or 4K screens.",
                     new AcceptableValueRange<float>(0.75f, 2.5f), new ConfigurationManagerAttributes { Order = 8 }));
 
+            ShowRandom = cfg.Bind("Display", "Show random character buttons", true,
+                Desc("Show the Random row: add N random characters from the matching cards, or replace the selected / all characters " +
+                    "in the scene with random ones.", 11));
             ShowHistograms = cfg.Bind("Display", "Show distribution graphs", true,
                 Desc("Show the small bar graph of where your cards fall above each body slider.", 10));
             HistogramHeight = cfg.Bind("Display", "Distribution graph height", 20,

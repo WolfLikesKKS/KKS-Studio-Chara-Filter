@@ -54,6 +54,9 @@ namespace StudioCharaFilter
         public int PageCount = 1;
         public bool ShowAll;    // ignore the page size (slow for thousands of cards)
 
+        // Every card matching the current filter in the current scope (all pages) - the pool for the Random buttons.
+        public readonly List<string> MatchedFiles = new List<string>();
+
         private List<RowData> _folderBackup;
 
         // Cards in the game's own folder list (the Current folder scope), as normalized paths.
@@ -153,13 +156,14 @@ namespace StudioCharaFilter
         {
             bool active = filter.IsActive;
             int shown = 0, total = 0;
+            MatchedFiles.Clear();
             foreach (CharaFileInfo cfi in Cfs.cfiList)
             {
                 if (cfi.node == null) continue;
                 total++;
                 bool show = !active || filter.Matches(index.Get(cfi.file));
                 if (cfi.node.gameObject.activeSelf != show) cfi.node.gameObject.SetActive(show);
-                if (show) shown++;
+                if (show) { shown++; MatchedFiles.Add(cfi.file); }
             }
             Shown = shown;
             Matched = shown;
@@ -217,6 +221,8 @@ namespace StudioCharaFilter
                 rows.Add(rd);
             }
             BuildRows(rows);
+            MatchedFiles.Clear();
+            foreach (CardInfo ci in matches) MatchedFiles.Add(ci.FilePath);
             Shown = rows.Count;
             Matched = matches.Count;
             Total = total;

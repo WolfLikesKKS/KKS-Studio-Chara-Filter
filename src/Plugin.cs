@@ -20,7 +20,7 @@ namespace StudioCharaFilter
     {
         public const string GUID = "WolfLikesKKS.StudioCharaFilter";
         public const string PluginName = "Studio Chara Filter";
-        public const string Version = "1.3.1";
+        public const string Version = "1.4.0";
 
         internal static ManualLogSource Log;
         internal static StudioCharaFilterPlugin Instance;
@@ -77,6 +77,7 @@ namespace StudioCharaFilter
             Settings.ShowFileSection.SettingChanged += (s8, e8) => { SyncSections(); MarkDirty(0f); };
 
             Harmony.CreateAndPatchAll(typeof(Hooks), GUID);
+            ReplaceHistory.Init(GUID);
             Speedups.Apply(GUID);
             Log.LogInfo("[SCF] Loaded v" + Version);
         }

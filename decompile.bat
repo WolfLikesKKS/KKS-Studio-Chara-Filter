@@ -1,7 +1,7 @@
 @echo off
 setlocal
 cd /d "%~dp0"
-set "GAME=%~dp0.."
+if not defined GAME set "GAME=%~dp0.."
 set "MANAGED=%GAME%\CharaStudio_Data\Managed"
 set "BEP=%GAME%\BepInEx"
 set "DNSPY=%GAME%\[MODDING] Tools\dnSpy v6.1.5\dnSpy.Console.exe"

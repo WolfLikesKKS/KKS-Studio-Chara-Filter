@@ -286,6 +286,7 @@ namespace StudioCharaFilter
                 _profileEnabled = Settings.ShowProfile.Value;
                 _detailsEnabled = Settings.ShowDetails.Value;
                 _fileEnabled = Settings.ShowFileSection.Value;
+                _randomEnabled = Settings.ShowRandom.Value && KKAPI.Studio.StudioAPI.InsideStudio;
                 _sectionOrder = Settings.GetSectionOrder();
                 _drawnSections.Clear();
                 foreach (string sid in _sectionOrder) if (SectionEnabled(sid)) _drawnSections.Add(sid);
@@ -310,6 +311,17 @@ namespace StudioCharaFilter
                     ? "Finish rearranging the sections."
                     : "Change the order of the sections below. The order is saved (also editable in F1 under \"Section order\")."), GUILayout.Width(80)))
                 Queue(delegate { _arrange = !_arrange; });
+            if (GUILayout.Button(new GUIContent("Random filters", "Clears the filters and sets a random few (slider ranges, sometimes a " +
+                "hair or eye color) picked from your cards. How narrow follows your collection: about 3 x the square root of the " +
+                "cards in scope stay (100 -> ~30, 5,000 -> ~210). Press again for another mix."), GUILayout.Width(100)))
+                Queue(delegate
+                {
+                    List<PropertyFilter> sliders = new List<PropertyFilter>();
+                    foreach (PropertyFilter pf in _filter.Properties) if (_filter.PropertyApplies(pf)) sliders.Add(pf);
+                    RandomFilter.RandomAll(_filter, sliders, _scopeCards);
+                    _nameText = ""; _outfitNameText = "";
+                    _markDirty(0f);
+                });
             if (GUILayout.Button(new GUIContent("Reset all", "Clears every body range and mod data filter."), GUILayout.Width(80)))
                 Queue(delegate { _filter.ResetAll(); _outfitNameText = ""; _nameText = ""; _markDirty(0f); });
             GUILayout.EndHorizontal();
@@ -329,6 +341,7 @@ namespace StudioCharaFilter
                     ? "Tick one or more folders above to list their cards"
                     : string.Format("Showing {0} of {1} cards", c.Shown, c.Total)), _leftLabel, Shrink);
             if (_showPager) DrawPager(c);
+            if (_randomEnabled) DrawRandomRow(c);
 
             GUILayout.BeginHorizontal();
             GUILayout.Label(new GUIContent("<b>Name</b>", "Search by character name or card file name in the current scope. " +
@@ -383,6 +396,9 @@ namespace StudioCharaFilter
             GUILayout.Label("<b>" + p.Label + "</b>", _leftLabel, GUILayout.Width(130));
             GUILayout.Label(p.Summary(), _leftLabel, Shrink);
             GUILayout.FlexibleSpace();
+            if (GUILayout.Button(new GUIContent("Random", "A random range for this value, picked from the cards that match the other " +
+                "filters (it keeps a good share of them)."), GUILayout.Width(60)))
+                Queue(delegate { RandomFilter.RandomRange(_filter, p, _scopeCards, false); _markDirty(0f); });
             bool prevEnabled = GUI.enabled;
             GUI.enabled = p.Active || p.Ranges.Count > 1;
             if (GUILayout.Button("Reset", GUILayout.Width(56)))
@@ -433,6 +449,9 @@ namespace StudioCharaFilter
             GUILayout.BeginHorizontal();
             if (GUILayout.Button(new GUIContent("+ add range", "Add another range for this value. Cards matching any of the ranges are shown."), _smallButton, GUILayout.Width(90)))
                 Queue(delegate { p.Ranges.Add(new ValueRange(p.SpanMin, p.SpanMax)); });
+            if (GUILayout.Button(new GUIContent("+ random range", "Add another, random range for this value (cards in either range are shown)."),
+                _smallButton, GUILayout.Width(110)))
+                Queue(delegate { RandomFilter.RandomRange(_filter, p, _scopeCards, true); _markDirty(0f); });
             GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
 
@@ -1146,6 +1165,8 @@ namespace StudioCharaFilter
 
         // Counts and graphs describe the current scope (Current folder / Choose folders / All folders);
         // slider spans and the missing mods report use the whole collection.
+        private List<CardInfo> _scopeCards = new List<CardInfo>();   // the cards in the current scope (for random filters)
+
         private void UpdateStats(CardIndex idx, ListController c)
         {
             if (_statsGeneration == idx.Generation && _statsSex == idx.Sex && _statsTrim == Settings.OutlierTrim.Value &&
@@ -1168,6 +1189,7 @@ namespace StudioCharaFilter
                 cards.Add(ci);
             }
 
+            _scopeCards = cards;
             bool spanChanged = _spanGeneration != idx.Generation || _spanTrim != Settings.OutlierTrim.Value || _statsSex != _spanSex;
             if (spanChanged)
             {

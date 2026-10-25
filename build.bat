@@ -1,7 +1,7 @@
 @echo off
 setlocal
 cd /d "%~dp0"
-set "GAME=%~dp0.."
+if not defined GAME set "GAME=%~dp0.."
 set "MANAGED=%GAME%\CharaStudio_Data\Managed"
 set "BEP=%GAME%\BepInEx"
 set "CSC=%WINDIR%\Microsoft.NET\Framework64\v4.0.30319\csc.exe"

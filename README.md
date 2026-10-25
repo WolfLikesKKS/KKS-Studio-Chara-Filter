@@ -61,6 +61,37 @@ There are two builds from the same source: `KKS_StudioCharaFilter.dll` for Koika
 - Large results are split into pages, with a **Show all** option.
 - Counts and distribution graphs in the window follow the current scope (the missing mods report always covers all folders).
 
+### Random filters
+
+- **Random filters** (next to *Reset all*) clears the filters and sets a random few: ranges on 2-5 random sliders and
+  sometimes a hair or eye color, picked from your own cards. Press again for another mix.
+- **Random** on a slider gives it a random range; **+ random range** adds another one.
+
+Ranges always come from the cards (a random card's value, widened to hold a good share of what still matches), so a random
+filter never lands on an empty stretch. How narrow it gets follows the size of the collection: about 3 x the square root of
+the cards in scope remain (100 cards -> ~30, 1,000 -> ~95, 5,000 -> ~210, at most 300).
+
+### Random characters (Studio)
+
+A **Random** row under the match count picks characters at random from the cards that match your filter in the current
+scope (all pages, for the open female or male list):
+
+- **Add** - adds that many random characters to the scene.
+- **Replace selected** - replaces the characters selected in the Workspace with random ones.
+- **Replace all** - replaces every character of that sex in the scene (click twice).
+- **No repeats** - each card is used once until all matching cards have been used.
+
+Replacing uses Studio's own "Change character", so each character keeps its place, pose and animation. Example: select five
+copies of a default character, filter (or pick a folder) down to your own 26 cards, press *Replace selected*. Turn the row
+off in F1 > Display > Show random character buttons.
+
+**Undo, one character at a time:** every replacement made in the session - by these buttons or by Studio's own *Change
+character* - is listed under the row (*Replaced characters*), newest first, each with an **Undo** button that changes that
+character back to exactly what it was (including plugin settings stored on it). **Undo selected** undoes the latest
+replacement of each character selected in the Workspace. Undoing an older replacement of a character that was replaced
+again since undoes the later ones too. The backups are kept in `UserData\StudioCharaFilter\undo\` and deleted the next time
+Studio starts.
+
 ### Body
 - **Anus size (ABMX)**: the scale of the anus bone from ABMX bone edits (100 = not edited; most cards aren't).
 - Range sliders for any of the **47 body values** from the Maker body tab (all 44 shape sliders, plus areola size,
