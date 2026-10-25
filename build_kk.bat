@@ -17,7 +17,10 @@ if not exist "%MANAGED%\Assembly-CSharp.dll" (
 )
 
 if not exist bin mkdir bin
-echo Building KK_StudioCharaFilter... > build_kk.log
+rem The version being built, read from the source.
+set "VER=?"
+for /f tokens^=2^ delims^=^" %%v in ('findstr /c:"const string Version" "src\Plugin.cs"') do set "VER=%%v"
+echo Building KK_StudioCharaFilter v%VER%... > build_kk.log
 "%CSC%" /nologo /noconfig /nostdlib+ /target:library /optimize+ /warn:3 /define:KK /out:"bin\KK_StudioCharaFilter.dll" ^
  /reference:"%MANAGED%\mscorlib.dll" ^
  /reference:"%MANAGED%\System.dll" ^
@@ -39,7 +42,7 @@ if errorlevel 1 (
   echo Could not copy the DLL into Koikatsu's BepInEx\plugins - close CharaStudio and run build_kk.bat again. >> build_kk.log
   goto :failed
 )
-echo BUILD OK - installed to Koikatsu's BepInEx\plugins\KK_StudioCharaFilter.dll >> build_kk.log
+echo BUILD OK - v%VER% - installed to Koikatsu's BepInEx\plugins\KK_StudioCharaFilter.dll >> build_kk.log
 type build_kk.log
 goto :end
 

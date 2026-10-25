@@ -10,7 +10,10 @@ if not exist "%CSC%" set "CSC=%WINDIR%\Microsoft.NET\Framework\v4.0.30319\csc.ex
 if not exist "decompiled\done.txt" call "%~dp0decompile.bat" nopause
 
 if not exist bin mkdir bin
-echo Building StudioCharaFilter... > build.log
+rem The version being built, read from the source.
+set "VER=?"
+for /f tokens^=2^ delims^=^" %%v in ('findstr /c:"const string Version" "src\Plugin.cs"') do set "VER=%%v"
+echo Building StudioCharaFilter v%VER%... > build.log
 "%CSC%" /nologo /noconfig /nostdlib+ /target:library /optimize+ /warn:3 /out:"bin\KKS_StudioCharaFilter.dll" ^
  /reference:"%MANAGED%\mscorlib.dll" ^
  /reference:"%MANAGED%\System.dll" ^
@@ -45,7 +48,7 @@ if errorlevel 1 (
   echo Could not copy the DLL into BepInEx\plugins - close CharaStudio and run build.bat again. >> build.log
   goto :failed
 )
-echo BUILD OK - installed to BepInEx\plugins\KKS_StudioCharaFilter.dll >> build.log
+echo BUILD OK - v%VER% - installed to BepInEx\plugins\KKS_StudioCharaFilter.dll >> build.log
 type build.log
 goto :end
 
