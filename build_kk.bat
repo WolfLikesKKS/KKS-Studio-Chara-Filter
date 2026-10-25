@@ -3,6 +3,9 @@ setlocal
 cd /d "%~dp0"
 rem Builds the Koikatsu / Koikatsu Party version (KK_StudioCharaFilter.dll) from the same src\ folder.
 rem Set KKGAME to your Koikatsu folder if it isn't next to this game's folder.
+rem Looked for next to this game's folder: from the repo folder (..\..) or from _PerfDev\charafilter (..\..\..).
+if "%KKGAME%"=="" if exist "%~dp0..\..\[ScrewThisNoise] Koikatsu BetterRepack RX22 dev\CharaStudio_Data" set "KKGAME=%~dp0..\..\[ScrewThisNoise] Koikatsu BetterRepack RX22 dev"
+if "%KKGAME%"=="" if exist "%~dp0..\..\..\[ScrewThisNoise] Koikatsu BetterRepack RX22 dev\CharaStudio_Data" set "KKGAME=%~dp0..\..\..\[ScrewThisNoise] Koikatsu BetterRepack RX22 dev"
 if "%KKGAME%"=="" set "KKGAME=%~dp0..\..\[ScrewThisNoise] Koikatsu BetterRepack RX22 dev"
 set "MANAGED=%KKGAME%\CharaStudio_Data\Managed"
 set "BEP=%KKGAME%\BepInEx"
